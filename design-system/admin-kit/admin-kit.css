@@ -1,0 +1,1854 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+ * THE ADMIN KIT — D-075 (Joe, 2026-10-16).
+ *
+ * Taken from Joe's own design, `App Admin.html` (the PeopleFirstAdminDesignSystem
+ * bundle): its tokens and its components, re-expressed as CSS classes so server
+ * components can use them. Light theme only (Joe: no dark mode for now).
+ *
+ * ⚠ EVERY CLASS IS PREFIXED `ak-` AND EVERY TOKEN `--ak-`. Class names in a
+ *   shared stylesheet are global, and this project has collided twice already
+ *   (.vh-label, .ad-content — gotchas). The old admin kit (`ad-*`) and the public
+ *   design system (`vh-*`, `ph-*`) are untouched; sections move over one at a time.
+ *
+ * ⚠ ONE DEPARTURE FROM THE DESIGN, DECIDED BY JOE: no text below 13px (VibeHQ's
+ *   type floor). The design's 9–12px labels, counts and badges are 13px here.
+ *
+ * Sizes in comments name the design component they came from.
+ * ═════════════════════════════════════════════════════════════════════════ */
+
+.ak {
+  color-scheme: light;
+  background: var(--ak-bg-app);
+  color: var(--ak-text-body);
+  font: 400 var(--ak-fs-14) / 1.5 var(--ak-font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+@media (prefers-reduced-motion: reduce) {
+  .ak {
+    --ak-dur-fast: 0ms;
+  }
+}
+.ak *,
+.ak *::before,
+.ak *::after {
+  box-sizing: border-box;
+}
+.ak :focus-visible {
+  outline: 2px solid var(--ak-accent);
+  outline-offset: 2px;
+}
+.ak a {
+  color: var(--ak-text-link);
+}
+.ak a:hover {
+  color: var(--ak-text-link-hover);
+}
+.ak-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Small mono capitals: eyebrows, labels, table heads (design: type-eyebrow). */
+.ak-eyebrow {
+  font: 400 var(--ak-fs-small) / 1.3 var(--ak-font-mono);
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--ak-text-muted);
+  margin: 0;
+}
+
+/* ── SHELL (AppShell, Sidebar, NavItem, Topbar, BottomNav) ───────────────── */
+.ak-app {
+  display: flex;
+  min-height: 100dvh;
+}
+.ak-skip {
+  position: absolute;
+  left: -9999px;
+}
+.ak-skip:focus {
+  left: 16px;
+  top: 12px;
+  z-index: 1000;
+  background: var(--ak-surface-2);
+  padding: 8px 12px;
+  border-radius: var(--ak-radius-md);
+}
+.ak-side {
+  width: var(--ak-sidebar-w);
+  flex: none;
+  height: 100dvh;
+  position: sticky;
+  top: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--ak-surface-1);
+  border-right: 1px solid var(--ak-border);
+  transition: width var(--ak-dur-fast) var(--ak-ease);
+  overflow: hidden;
+}
+.ak-app[data-collapsed='true'] .ak-side {
+  width: var(--ak-sidebar-w-collapsed);
+}
+.ak-side__brand {
+  height: var(--ak-topbar-h);
+  flex: none;
+  display: flex;
+  align-items: center;
+  padding: 0 24px;
+  border-bottom: 1px solid var(--ak-border);
+  text-decoration: none;
+}
+.ak-app[data-collapsed='true'] .ak-side__brand {
+  padding: 0 20px;
+}
+.ak-brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  text-decoration: none;
+}
+.ak-brand__mark {
+  width: 24px;
+  height: 24px;
+  flex: none;
+  border-radius: var(--ak-radius-sm);
+  background: var(--ak-accent);
+  color: var(--ak-accent-on);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font: 600 var(--ak-fs-13) / 1 var(--ak-font-cond);
+}
+.ak-brand__name {
+  font: 600 var(--ak-fs-15) / 1 var(--ak-font-cond);
+  color: var(--ak-text-primary);
+  letter-spacing: -0.008em;
+  white-space: nowrap;
+}
+.ak-app[data-collapsed='true'] .ak-brand__name,
+.ak-app[data-collapsed='true'] .ak-nav__label,
+.ak-app[data-collapsed='true'] .ak-nav__count,
+.ak-app[data-collapsed='true'] .ak-nav__group,
+.ak-app[data-collapsed='true'] .ak-side__who {
+  display: none;
+}
+.ak-side__scroll {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px 8px;
+  /* MORE BELOW, SHOWN (sweep, 2026-10-28): 22 items do not fit a laptop or a
+     tablet, and the menu scrolled with nothing to say so — "System" looked
+     empty. A soft shadow appears at the edge that has more; the covers
+     (`local`) slide away as you scroll to that edge, so a shadow is never
+     shown where there is nothing left. CSS only. */
+  background:
+    linear-gradient(var(--ak-surface-1) 30%, transparent) top / 100% 24px no-repeat local,
+    linear-gradient(transparent, var(--ak-surface-1) 70%) bottom / 100% 24px no-repeat local,
+    radial-gradient(farthest-side at 50% 0, var(--ak-edge-shadow), transparent) top / 100% 10px
+      no-repeat scroll,
+    radial-gradient(farthest-side at 50% 100%, var(--ak-edge-shadow), transparent) bottom / 100%
+      10px no-repeat scroll;
+  background-color: var(--ak-surface-1);
+}
+.ak-nav__section {
+  margin-bottom: var(--ak-space-4);
+}
+.ak-nav__group {
+  padding: 0 16px;
+  margin: 0 0 8px;
+}
+.ak-nav__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.ak-nav__item {
+  display: flex;
+  align-items: center;
+  gap: var(--ak-space-2);
+  width: 100%;
+  height: var(--ak-control-h-lg);
+  padding: 0 16px;
+  border-radius: var(--ak-radius-md);
+  text-decoration: none;
+  color: var(--ak-text-secondary);
+  font: 500 var(--ak-fs-13) / 1.3 var(--ak-font-sans);
+  transition:
+    background var(--ak-dur-fast) var(--ak-ease),
+    color var(--ak-dur-fast) var(--ak-ease);
+}
+.ak .ak-nav__item {
+  color: var(--ak-text-secondary);
+}
+.ak .ak-nav__item:hover {
+  background: var(--ak-surface-hover);
+  color: var(--ak-text-primary);
+}
+.ak .ak-nav__item[aria-current='page'] {
+  background: var(--ak-accent-quiet);
+  color: var(--ak-accent-text);
+}
+.ak-nav__item svg {
+  flex: none;
+}
+.ak-nav__label {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.ak-nav__count {
+  font: 400 var(--ak-fs-small) / 1 var(--ak-font-mono);
+  color: var(--ak-text-muted);
+}
+/* Red count: something is waiting for a person (Joe, 6A). */
+.ak-nav__count--waiting {
+  color: var(--ak-danger);
+  background: var(--ak-danger-bg);
+  border: 1px solid var(--ak-danger-border);
+  border-radius: var(--ak-radius-sm);
+  padding: 2px 6px;
+}
+.ak-side__foot {
+  flex: none;
+  padding: 16px;
+  border-top: 1px solid var(--ak-border);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+.ak-side__who {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+.ak-side__who a {
+  /* A 24px target at least (WCAG 2.5.8; the sweep measured 21px, crowded). */
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+}
+.ak-side__who b {
+  font: 500 var(--ak-fs-13) / 1.3 var(--ak-font-sans);
+  color: var(--ak-text-body);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.ak-side__who span {
+  font: 400 var(--ak-fs-13) / 1.4 var(--ak-font-sans);
+  color: var(--ak-text-muted);
+}
+
+.ak-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+.ak-top {
+  height: var(--ak-topbar-h);
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: var(--ak-space-3);
+  padding: 0 24px;
+  background: var(--ak-surface-1);
+  border-bottom: 1px solid var(--ak-border);
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+.ak-top__right {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: var(--ak-space-2);
+}
+.ak-content {
+  flex: 1;
+  min-width: 0;
+}
+/* A section not yet moved to the kit still needs room around it. */
+.ak-content:not(:has(> .ak-page-wrap)) {
+  padding: 24px;
+}
+
+.ak-crumbs {
+  display: flex;
+  align-items: center;
+  gap: var(--ak-space-2);
+  min-width: 0;
+  font: 400 var(--ak-fs-13) / 1.5 var(--ak-font-sans);
+}
+.ak-crumbs ol {
+  display: flex;
+  align-items: center;
+  gap: var(--ak-space-2);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  min-width: 0;
+}
+.ak-crumbs li {
+  display: flex;
+  align-items: center;
+  gap: var(--ak-space-2);
+  white-space: nowrap;
+}
+.ak-crumbs a {
+  color: var(--ak-text-link);
+  text-decoration: none;
+  font: 600 var(--ak-fs-13) / 1.3 var(--ak-font-cond);
+}
+.ak-crumbs a:hover {
+  text-decoration: underline;
+}
+.ak-crumbs [aria-current='page'] {
+  color: var(--ak-text-primary);
+  font: 500 var(--ak-fs-13) / 1.3 var(--ak-font-sans);
+}
+.ak-crumbs svg {
+  color: var(--ak-text-muted);
+}
+
+.ak-avatar {
+  width: 24px;
+  height: 24px;
+  border-radius: var(--ak-radius-pill);
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--ak-green-500);
+  color: var(--ak-n-0);
+  font: 600 var(--ak-fs-13) / 1 var(--ak-font-cond);
+}
+
+/* Phone (design: below 720px the sidebar becomes a bottom bar). */
+.ak-bottom {
+  display: none;
+}
+.ak-sheet {
+  position: fixed;
+  inset: 0;
+  z-index: 900;
+  background: var(--ak-scrim);
+  display: flex;
+}
+.ak-sheet[hidden] {
+  display: none;
+}
+.ak-sheet .ak-side {
+  display: flex;
+  position: relative;
+  box-shadow: var(--ak-shadow-overlay);
+}
+.ak-sheet__close {
+  position: absolute;
+  top: 12px;
+  right: 8px;
+}
+@media (max-width: 720px) {
+  .ak-app > .ak-side {
+    display: none;
+  }
+  .ak-app .ak-collapse {
+    display: none;
+  }
+  .ak-top {
+    padding: 0 16px;
+  }
+  .ak-top .ak-crumbs {
+    display: none;
+  }
+  .ak-top__phone-brand {
+    display: flex !important;
+  }
+  /* At 320px the name and four buttons are 353px: the mark alone fits. */
+  .ak-top__phone-brand .ak-brand__name {
+    display: none;
+  }
+  .ak-top {
+    gap: 8px;
+  }
+  .ak-top__right {
+    gap: 0;
+  }
+  .ak-content:not(:has(> .ak-page-wrap)) {
+    padding: 16px;
+  }
+  .ak-main {
+    padding-bottom: calc(56px + env(safe-area-inset-bottom));
+  }
+  .ak-bottom {
+    display: flex;
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 60;
+    background: var(--ak-surface-1);
+    border-top: 1px solid var(--ak-border);
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}
+.ak-top__phone-brand {
+  display: none;
+}
+.ak-bottom__item {
+  flex: 1;
+  min-width: 0;
+  min-height: 56px;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  position: relative;
+  padding: 8px 4px;
+  text-decoration: none;
+  font: 500 var(--ak-fs-13) / 1.2 var(--ak-font-sans);
+}
+.ak .ak-bottom__item {
+  color: var(--ak-text-muted);
+}
+.ak .ak-bottom__item[aria-current='page'] {
+  color: var(--ak-accent);
+}
+.ak-bottom__item[aria-current='page']::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 25%;
+  right: 25%;
+  height: 2px;
+  background: var(--ak-accent);
+}
+.ak-bottom__badge {
+  position: absolute;
+  top: 2px;
+  left: calc(50% + 6px);
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  border-radius: var(--ak-radius-pill);
+  background: var(--ak-danger);
+  color: var(--ak-on-danger);
+  font: 500 var(--ak-fs-small) / 18px var(--ak-font-mono);
+  text-align: center;
+}
+
+/* ── PAGE (PageHeader, Page) ───────────────────────────────────────────── */
+.ak-page-head {
+  display: flex;
+  align-items: flex-end;
+  gap: 24px;
+  flex-wrap: wrap;
+  padding: 32px 32px 24px;
+  border-bottom: 1px solid var(--ak-border);
+}
+.ak-page-head__text {
+  flex: 1 1 280px;
+  min-width: 0;
+}
+.ak-page-head__text .ak-eyebrow {
+  margin-bottom: 8px;
+}
+.ak-page-title {
+  font: 600 var(--ak-fs-30) / 1.3 var(--ak-font-cond);
+  letter-spacing: -0.016em;
+  color: var(--ak-text-primary);
+  margin: 0;
+}
+.ak-page-lede {
+  font: 400 var(--ak-fs-14) / 1.5 var(--ak-font-sans);
+  color: var(--ak-text-muted);
+  margin: 8px 0 0;
+  max-width: 72ch;
+}
+.ak-page-head__actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.ak-page {
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+.ak-page--form {
+  max-width: 880px;
+  width: 100%;
+}
+@media (max-width: 720px) {
+  .ak-page-head {
+    gap: 16px;
+    padding: 24px 16px 16px;
+  }
+  .ak-page-title {
+    font-size: var(--ak-fs-24);
+  }
+  .ak-page-head__actions {
+    flex: 1 1 100%;
+  }
+  .ak-page {
+    padding: 16px;
+    gap: 16px;
+  }
+}
+
+/* ── BUTTON, ICON BUTTON ───────────────────────────────────────────────── */
+.ak-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--ak-space-2);
+  height: var(--ak-control-h);
+  padding: 0 16px;
+  font: 600 var(--ak-fs-13) / 1 var(--ak-font-cond);
+  letter-spacing: 0.002em;
+  border-radius: var(--ak-radius-md);
+  cursor: pointer;
+  white-space: nowrap;
+  text-decoration: none;
+  transition:
+    background var(--ak-dur-fast) var(--ak-ease),
+    border-color var(--ak-dur-fast) var(--ak-ease),
+    color var(--ak-dur-fast) var(--ak-ease);
+  background: var(--ak-surface-raised);
+  color: var(--ak-text-primary);
+  border: 1px solid var(--ak-border-strong);
+}
+.ak .ak-btn {
+  color: var(--ak-text-primary);
+}
+.ak-btn:hover {
+  background: var(--ak-surface-active);
+}
+.ak-btn--sm {
+  height: var(--ak-control-h-sm);
+  padding: 0 8px;
+}
+.ak-btn--lg {
+  height: var(--ak-control-h-lg);
+  padding: 0 24px;
+  font-size: var(--ak-fs-14);
+}
+.ak .ak-btn--primary {
+  background: var(--ak-accent);
+  color: var(--ak-accent-on);
+  border-color: var(--ak-accent);
+}
+.ak .ak-btn--primary:hover {
+  background: var(--ak-accent-hover);
+  border-color: var(--ak-accent-hover);
+  color: var(--ak-accent-on);
+}
+.ak .ak-btn--ghost {
+  background: transparent;
+  color: var(--ak-text-secondary);
+  border-color: transparent;
+}
+.ak .ak-btn--ghost:hover {
+  background: var(--ak-surface-hover);
+  color: var(--ak-text-primary);
+}
+.ak .ak-btn--danger {
+  background: var(--ak-danger);
+  color: var(--ak-text-inverse);
+  border-color: var(--ak-danger);
+}
+.ak .ak-btn--danger:hover {
+  background: var(--ak-danger-hover);
+  border-color: var(--ak-danger-hover);
+}
+.ak-btn:disabled,
+.ak-btn[aria-disabled='true'] {
+  opacity: 0.42;
+  cursor: not-allowed;
+}
+.ak-btn--block {
+  width: 100%;
+}
+.ak-spin {
+  width: 12px;
+  height: 12px;
+  border-radius: var(--ak-radius-pill);
+  /* A spinner is a ring, not a border: its stroke is the design's own 2px. */
+  border: var(--ak-spinner-stroke) solid currentColor;
+  border-top-color: transparent;
+  animation: ak-spin 0.7s linear infinite;
+}
+@keyframes ak-spin {
+  100% {
+    transform: rotate(360deg);
+  }
+}
+.ak-iconbtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--ak-control-h);
+  height: var(--ak-control-h);
+  border-radius: var(--ak-radius-md);
+  cursor: pointer;
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--ak-text-secondary);
+  position: relative;
+  transition: background var(--ak-dur-fast) var(--ak-ease);
+  text-decoration: none;
+}
+.ak .ak-iconbtn {
+  color: var(--ak-text-secondary);
+}
+.ak .ak-iconbtn:hover {
+  background: var(--ak-surface-hover);
+  color: var(--ak-text-primary);
+}
+.ak-iconbtn--sm {
+  width: var(--ak-control-h-sm);
+  height: var(--ak-control-h-sm);
+}
+.ak-iconbtn--outline {
+  background: var(--ak-surface-raised);
+  border-color: var(--ak-border-strong);
+}
+.ak .ak-iconbtn[aria-pressed='true'] {
+  background: var(--ak-accent-quiet);
+  color: var(--ak-accent-text);
+}
+.ak-iconbtn:disabled {
+  opacity: 0.42;
+  cursor: not-allowed;
+}
+/* On a phone every tap target is at least 44px (design: Phone layout). */
+@media (max-width: 720px) {
+  .ak-iconbtn,
+  .ak-iconbtn--sm {
+    min-width: 44px;
+    min-height: 44px;
+  }
+  .ak-btn {
+    min-height: 44px;
+  }
+}
+
+/* ── BADGE (status pill), TAG ──────────────────────────────────────────── */
+.ak-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 8px;
+  border-radius: var(--ak-radius-sm);
+  font: 500 var(--ak-fs-small) / 1.4 var(--ak-font-sans);
+  white-space: nowrap;
+  background: var(--ak-neutral-bg);
+  color: var(--ak-text-secondary);
+  border: 1px solid var(--ak-neutral-border);
+}
+.ak-badge__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: var(--ak-radius-pill);
+  background: currentColor;
+  flex: none;
+}
+.ak-badge--info {
+  background: var(--ak-info-bg);
+  color: var(--ak-accent-text);
+  border-color: var(--ak-info-border);
+}
+.ak-badge--success {
+  background: var(--ak-success-bg);
+  color: var(--ak-success);
+  border-color: var(--ak-success-border);
+}
+.ak-badge--warning {
+  background: var(--ak-warning-bg);
+  color: var(--ak-warning);
+  border-color: var(--ak-warning-border);
+}
+.ak-badge--danger {
+  background: var(--ak-danger-bg);
+  color: var(--ak-danger);
+  border-color: var(--ak-danger-border);
+}
+.ak-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 7px;
+  border-radius: var(--ak-radius-xs);
+  background: var(--ak-neutral-bg);
+  color: var(--ak-text-secondary);
+  font: 500 var(--ak-fs-small) / 1.3 var(--ak-font-mono);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+/* ── CARD, STAT CARD ───────────────────────────────────────────────────── */
+.ak-card {
+  background: var(--ak-surface-card);
+  border: 1px solid var(--ak-border);
+  border-radius: var(--ak-radius-lg);
+  min-width: 0;
+}
+.ak-card__head {
+  display: flex;
+  align-items: center;
+  gap: var(--ak-space-3);
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--ak-border-subtle);
+}
+.ak-card__title {
+  font: 600 var(--ak-fs-15) / 1.3 var(--ak-font-cond);
+  color: var(--ak-text-primary);
+  margin: 0;
+}
+.ak-card__sub {
+  font: 400 var(--ak-fs-13) / 1.5 var(--ak-font-sans);
+  color: var(--ak-text-muted);
+  margin: 4px 0 0;
+}
+.ak-card__actions {
+  margin-left: auto;
+  display: flex;
+  gap: var(--ak-space-2);
+}
+.ak-card__body {
+  padding: var(--ak-pad-card);
+}
+.ak-card__body--tight {
+  padding: 16px;
+}
+.ak-card__body--none {
+  padding: 0;
+}
+.ak-card__foot {
+  padding: 16px 24px;
+  border-top: 1px solid var(--ak-border-subtle);
+  font: 400 var(--ak-fs-13) / 1.5 var(--ak-font-sans);
+  color: var(--ak-text-muted);
+}
+@media (max-width: 720px) {
+  .ak-card__head {
+    padding: 16px;
+  }
+  .ak-card__body {
+    padding: 16px;
+  }
+}
+.ak-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+}
+/* Phone: two to a row, as the design's phone frames show. */
+@media (max-width: 720px) {
+  .ak-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+  .ak-stat {
+    padding: 12px 16px 16px;
+  }
+  .ak-stat .ak-eyebrow {
+    margin-bottom: 8px;
+  }
+  .ak-stat__value {
+    font-size: var(--ak-fs-24);
+  }
+}
+.ak-stat {
+  background: var(--ak-surface-card);
+  border: 1px solid var(--ak-border);
+  border-radius: var(--ak-radius-lg);
+  padding: 16px 24px 24px;
+  text-decoration: none;
+  display: block;
+}
+.ak-stat .ak-eyebrow {
+  margin-bottom: 16px;
+}
+.ak-stat__value {
+  font: 600 var(--ak-fs-30) / 1 var(--ak-font-cond);
+  letter-spacing: -0.016em;
+  color: var(--ak-text-primary);
+}
+.ak-stat__value--danger {
+  color: var(--ak-danger);
+}
+.ak-stat__hint {
+  font: 400 var(--ak-fs-13) / 1.5 var(--ak-font-sans);
+  color: var(--ak-text-muted);
+  margin: 8px 0 0;
+}
+
+/* ── FORMS (FormField, Input, Select, Textarea, Checkbox, Radio, Switch) ── */
+.ak-form {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+.ak-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+.ak-fields--2 {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+@media (max-width: 720px) {
+  .ak-fields--2 {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+.ak-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ak-space-2);
+  min-width: 0;
+  border: 0;
+  margin: 0;
+  padding: 0;
+}
+.ak-field__label {
+  font: 400 var(--ak-fs-small) / 1.3 var(--ak-font-mono);
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--ak-text-muted);
+  padding: 0;
+}
+.ak-field__req {
+  color: var(--ak-danger);
+  margin-left: 4px;
+}
+.ak-field__hint {
+  font: 400 var(--ak-fs-13) / 1.5 var(--ak-font-sans);
+  color: var(--ak-text-muted);
+  margin: 0;
+}
+.ak-field__error {
+  font: 400 var(--ak-fs-13) / 1.5 var(--ak-font-sans);
+  color: var(--ak-danger);
+  margin: 0;
+}
+.ak-control {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.ak-control__icon {
+  position: absolute;
+  left: 12px;
+  color: var(--ak-text-muted);
+  display: flex;
+  pointer-events: none;
+}
+.ak-input,
+.ak-select,
+.ak-textarea {
+  width: 100%;
+  background: var(--ak-surface-inset);
+  color: var(--ak-text-body);
+  border: 1px solid var(--ak-border-field);
+  border-radius: var(--ak-radius-md);
+  font: 400 var(--ak-fs-14) / 1.5 var(--ak-font-sans);
+  outline: none;
+  transition:
+    border-color var(--ak-dur-fast) var(--ak-ease),
+    box-shadow var(--ak-dur-fast) var(--ak-ease);
+}
+.ak-input,
+.ak-select {
+  height: var(--ak-control-h-lg);
+  padding: 0 12px;
+}
+.ak-input--icon {
+  padding-left: 34px;
+}
+.ak-select {
+  appearance: none;
+  padding-right: 36px;
+  cursor: pointer;
+}
+.ak-select-chev {
+  position: absolute;
+  right: 12px;
+  color: var(--ak-text-muted);
+  pointer-events: none;
+  display: flex;
+}
+.ak-textarea {
+  padding: 12px;
+  resize: vertical;
+}
+.ak-input::placeholder,
+.ak-textarea::placeholder {
+  color: var(--ak-text-muted);
+}
+.ak-input:focus,
+.ak-select:focus,
+.ak-textarea:focus {
+  border-color: var(--ak-accent);
+  box-shadow: inset 0 0 0 1px var(--ak-accent);
+}
+.ak-input[aria-invalid='true'],
+.ak-select[aria-invalid='true'],
+.ak-textarea[aria-invalid='true'] {
+  border-color: var(--ak-danger);
+}
+.ak-input[aria-invalid='true']:focus,
+.ak-select[aria-invalid='true']:focus,
+.ak-textarea[aria-invalid='true']:focus {
+  box-shadow: inset 0 0 0 1px var(--ak-danger);
+}
+/* Read-only: shown, not editable — no fill, dashed edge, so it does not look
+   like a box waiting for input (the price Stripe recorded, for one). */
+.ak-input[readonly] {
+  background: transparent;
+  border-style: dashed;
+  color: var(--ak-text-secondary);
+}
+.ak-input:disabled,
+.ak-select:disabled,
+.ak-textarea:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.ak-input[type='file'] {
+  height: auto;
+  padding: 8px 12px;
+}
+
+/* Checkbox and radio: the native input stays (a real form value, a real focus),
+   drawn as the design's 16px box. */
+.ak-check {
+  display: flex;
+  gap: var(--ak-space-2);
+  align-items: flex-start;
+  cursor: pointer;
+  position: relative;
+}
+.ak-check input {
+  appearance: none;
+  margin: 2px 0 0;
+  width: 16px;
+  height: 16px;
+  flex: none;
+  border-radius: var(--ak-radius-sm);
+  background: var(--ak-surface-inset);
+  border: 1px solid var(--ak-border-field);
+  display: grid;
+  place-content: center;
+  cursor: pointer;
+  transition:
+    background var(--ak-dur-fast) var(--ak-ease),
+    border-color var(--ak-dur-fast) var(--ak-ease);
+}
+.ak-check input[type='radio'] {
+  border-radius: var(--ak-radius-pill);
+}
+.ak-check input:checked {
+  background: var(--ak-accent);
+  border-color: var(--ak-accent);
+}
+/* The tick is the design's own icon (Lucide "check"), as a mask. */
+.ak-check input[type='checkbox']:checked::after {
+  content: '';
+  width: 12px;
+  height: 12px;
+  background: var(--ak-accent-on);
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E")
+    center / contain no-repeat;
+}
+.ak-check input[type='radio']:checked {
+  background: var(--ak-surface-inset);
+}
+.ak-check input[type='radio']:checked::after {
+  content: '';
+  width: 8px;
+  height: 8px;
+  border-radius: var(--ak-radius-pill);
+  background: var(--ak-accent);
+}
+.ak-check input[aria-invalid='true'] {
+  border-color: var(--ak-danger);
+}
+.ak-check input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.ak-check__text {
+  min-width: 0;
+}
+.ak-check__label {
+  font: 400 var(--ak-fs-13) / 1.5 var(--ak-font-sans);
+  color: var(--ak-text-body);
+}
+.ak-check__desc {
+  display: block;
+  font: 400 var(--ak-fs-13) / 1.5 var(--ak-font-sans);
+  color: var(--ak-text-muted);
+  margin-top: 2px;
+}
+.ak-choices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 24px;
+}
+.ak-choices--stack {
+  flex-direction: column;
+  gap: 12px;
+}
+.ak-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ak-space-2);
+  cursor: pointer;
+}
+.ak-switch input {
+  appearance: none;
+  margin: 0;
+  width: 34px;
+  height: 20px;
+  flex: none;
+  border-radius: var(--ak-radius-pill);
+  background: var(--ak-control-track);
+  border: 1px solid var(--ak-border-field);
+  position: relative;
+  cursor: pointer;
+  transition: background var(--ak-dur-fast) var(--ak-ease);
+}
+.ak-switch input::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 14px;
+  height: 14px;
+  border-radius: var(--ak-radius-pill);
+  background: var(--ak-control-knob);
+  transition: transform var(--ak-dur-fast) var(--ak-ease);
+}
+.ak-switch input:checked {
+  background: var(--ak-accent);
+  border-color: var(--ak-accent);
+}
+.ak-switch input:checked::after {
+  transform: translateX(14px);
+}
+.ak-switch span {
+  font: 400 var(--ak-fs-13) / 1.5 var(--ak-font-sans);
+  color: var(--ak-text-body);
+}
+
+/* ── ERROR SUMMARY, ALERT, ACTION BAR ──────────────────────────────────── */
+.ak-errsum {
+  background: var(--ak-danger-bg);
+  border: 1px solid var(--ak-danger-border);
+  border-radius: var(--ak-radius-md);
+  padding: 16px 24px;
+  outline: none;
+}
+.ak-errsum:focus-visible {
+  outline: 2px solid var(--ak-danger);
+}
+.ak-errsum h2 {
+  margin: 0 0 8px;
+  font: 600 var(--ak-fs-15) / 1.3 var(--ak-font-cond);
+  color: var(--ak-text-primary);
+}
+.ak-errsum ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.ak .ak-errsum a {
+  font: 400 var(--ak-fs-13) / 1.5 var(--ak-font-sans);
+  color: var(--ak-danger);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.ak-alert {
+  display: flex;
+  gap: var(--ak-space-2);
+  align-items: flex-start;
+  border-radius: var(--ak-radius-lg);
+  padding: 16px;
+  border: 1px solid var(--ak-info-border);
+  background: var(--ak-info-bg);
+}
+.ak-alert__icon {
+  display: flex;
+  margin-top: 2px;
+  color: var(--ak-info);
+}
+.ak-alert__body {
+  flex: 1;
+  min-width: 0;
+}
+.ak-alert__title {
+  font: 600 var(--ak-fs-15) / 1.3 var(--ak-font-cond);
+  margin: 0;
+  color: var(--ak-accent-text);
+}
+.ak-alert__text {
+  font: 400 var(--ak-fs-13) / 1.5 var(--ak-font-sans);
+  color: var(--ak-text-secondary);
+  margin-top: 4px;
+}
+.ak-alert__text:first-child {
+  margin-top: 0;
+}
+.ak-alert__action {
+  margin-top: 16px;
+}
+.ak-alert--success {
+  background: var(--ak-success-bg);
+  border-color: var(--ak-success-border);
+}
+.ak-alert--success .ak-alert__icon,
+.ak-alert--success .ak-alert__title {
+  color: var(--ak-success);
+}
+.ak-alert--warning {
+  background: var(--ak-warning-bg);
+  border-color: var(--ak-warning-border);
+}
+.ak-alert--warning .ak-alert__icon,
+.ak-alert--warning .ak-alert__title {
+  color: var(--ak-warning);
+}
+.ak-alert--danger {
+  background: var(--ak-danger-bg);
+  border-color: var(--ak-danger-border);
+}
+.ak-alert--danger .ak-alert__icon,
+.ak-alert--danger .ak-alert__title {
+  color: var(--ak-danger);
+}
+.ak-actionbar {
+  position: sticky;
+  bottom: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ak-space-2);
+  flex-wrap: wrap;
+  padding: 8px 24px;
+  background: var(--ak-surface-2);
+  border-top: 1px solid var(--ak-border);
+  box-shadow: 0 -1px 0 var(--ak-border-subtle);
+}
+.ak-actionbar__status {
+  font: 400 var(--ak-fs-13) / 1.5 var(--ak-font-sans);
+  color: var(--ak-text-muted);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.ak-actionbar__buttons {
+  display: flex;
+  gap: var(--ak-space-1);
+  margin-left: auto;
+}
+@media (max-width: 720px) {
+  .ak-actionbar {
+    padding: 12px 16px;
+    bottom: calc(56px + env(safe-area-inset-bottom));
+  }
+}
+
+/* ── TOOLBAR, TABLE, PAGINATION, EMPTY / ERROR STATE ───────────────────── */
+.ak-toolbar {
+  display: flex;
+  align-items: center;
+  gap: var(--ak-space-2);
+  flex-wrap: wrap;
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--ak-border-subtle);
+}
+.ak-toolbar__search {
+  flex: 1 1 260px;
+  max-width: 360px;
+}
+.ak-toolbar__filter {
+  flex: 0 1 220px;
+}
+.ak-toolbar__right {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: var(--ak-space-2);
+}
+.ak-tablewrap {
+  overflow-x: auto;
+}
+.ak-table {
+  width: 100%;
+  border-collapse: collapse;
+  font: 400 var(--ak-fs-13) / 1.5 var(--ak-font-sans);
+}
+.ak-table th {
+  text-align: left;
+  padding: 8px 16px;
+  background: var(--ak-surface-2);
+  border-bottom: 1px solid var(--ak-border);
+  white-space: nowrap;
+  font: 500 var(--ak-fs-small) / 1.4 var(--ak-font-mono);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ak-text-muted);
+}
+.ak-table th:first-child,
+.ak-table td:first-child {
+  padding-left: 24px;
+}
+.ak-table th:last-child,
+.ak-table td:last-child {
+  padding-right: 24px;
+}
+.ak-table th[aria-sort] {
+  padding: 0;
+}
+.ak-table__sort {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  padding: 8px 16px;
+  border: 0;
+  background: none;
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+.ak-table th[aria-sort]:first-child .ak-table__sort {
+  padding-left: 24px;
+}
+.ak-table td {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--ak-border-subtle);
+  color: var(--ak-text-secondary);
+  vertical-align: middle;
+}
+.ak-table tbody tr {
+  transition: background var(--ak-dur-fast) var(--ak-ease);
+}
+.ak-table tbody tr:hover {
+  background: var(--ak-surface-hover);
+}
+.ak-table__primary {
+  color: var(--ak-text-primary);
+  font-weight: 600;
+}
+.ak .ak-table__rowlink {
+  color: var(--ak-text-primary);
+  font-weight: 600;
+  text-decoration: none;
+}
+.ak .ak-table__rowlink:hover {
+  text-decoration: underline;
+}
+/* Text that must not break inside itself — a date, a time. */
+.ak-nowrap {
+  white-space: nowrap;
+}
+@media (max-width: 720px) {
+  /* On a phone the rows stack: each row's name is a 24px target at least
+     (WCAG 2.5.8; the sweep measured 17px, crowded by the next row). */
+  .ak .ak-table__rowlink {
+    display: inline-block;
+    padding-block: 4px;
+  }
+}
+.ak-table__mono {
+  font: 400 var(--ak-fs-13) / 1.5 var(--ak-font-mono);
+  color: var(--ak-text-muted);
+}
+.ak-table__num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.ak-table__empty {
+  padding: 40px 24px !important;
+  text-align: center;
+  color: var(--ak-text-muted);
+}
+/* Phone: "tables become stacked rows" (design: Phone layout). */
+@media (max-width: 720px) {
+  .ak-table thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+  }
+  .ak-table,
+  .ak-table tbody,
+  .ak-table tr,
+  .ak-table td {
+    display: block;
+    width: 100%;
+  }
+  .ak-table tr {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--ak-border-subtle);
+  }
+  .ak-table td,
+  .ak-table td:first-child,
+  .ak-table td:last-child {
+    border: 0;
+    padding: 2px 0;
+  }
+  .ak-table td[data-label]::before {
+    content: attr(data-label);
+    display: block;
+    font: 400 var(--ak-fs-small) / 1.3 var(--ak-font-mono);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--ak-text-muted);
+  }
+  .ak-table td.ak-table__first::before {
+    display: none;
+  }
+}
+.ak-pager {
+  display: flex;
+  align-items: center;
+  gap: var(--ak-space-3);
+  padding: 16px 24px;
+}
+.ak-pager__count {
+  font: 400 var(--ak-fs-13) / 1.5 var(--ak-font-mono);
+  color: var(--ak-text-muted);
+  letter-spacing: 0.04em;
+}
+.ak-pager__nav {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: var(--ak-space-2);
+  font: 400 var(--ak-fs-13) / 1.5 var(--ak-font-mono);
+  color: var(--ak-text-secondary);
+}
+.ak-state {
+  padding: 48px 24px;
+  text-align: center;
+}
+.ak-state--compact {
+  padding: 24px 16px;
+}
+.ak-state__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--ak-radius-lg);
+  background: var(--ak-surface-raised);
+  border: 1px solid var(--ak-border);
+  color: var(--ak-text-muted);
+  margin-bottom: var(--ak-space-3);
+}
+.ak-state--danger .ak-state__icon {
+  background: var(--ak-danger-bg);
+  border-color: var(--ak-danger-border);
+  color: var(--ak-danger);
+}
+.ak-state__title {
+  font: 600 var(--ak-fs-15) / 1.3 var(--ak-font-cond);
+  color: var(--ak-text-primary);
+  margin: 0 0 8px;
+}
+.ak-state__text {
+  font: 400 var(--ak-fs-13) / 1.5 var(--ak-font-sans);
+  color: var(--ak-text-muted);
+  margin: 0 auto;
+  max-width: 46ch;
+}
+.ak-state__actions {
+  margin-top: var(--ak-space-4);
+  display: flex;
+  gap: var(--ak-space-1);
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.ak-state__code {
+  font: 400 var(--ak-fs-small) / 1.5 var(--ak-font-mono);
+  color: var(--ak-text-muted);
+  margin: var(--ak-space-3) 0 0;
+}
+
+/* ── DIALOG (Modal, ConfirmDialog) — a native <dialog> ─────────────────── */
+.ak-dialog {
+  /* Tailwind 4's reset sets `margin: 0` on every element, which pins a modal
+     <dialog> to the top-left. `auto` gives back the browser's centring. Joe,
+     2026-10-16: "Modal centre of screen". */
+  margin: auto;
+  width: calc(100% - 32px);
+  max-width: 400px;
+  max-height: 86vh;
+  padding: 0;
+  border: 1px solid var(--ak-border-strong);
+  border-radius: var(--ak-radius-lg);
+  background: var(--ak-surface-2);
+  color: var(--ak-text-body);
+  box-shadow: var(--ak-shadow-overlay);
+  font: 400 var(--ak-fs-14) / 1.5 var(--ak-font-sans);
+}
+.ak-dialog::backdrop {
+  background: var(--ak-scrim);
+}
+.ak-dialog--md {
+  max-width: 560px;
+}
+.ak-dialog__head {
+  padding: 24px 24px 16px;
+  border-bottom: 1px solid var(--ak-border-subtle);
+  position: relative;
+}
+.ak-dialog__title {
+  font: 600 var(--ak-fs-21) / 1.3 var(--ak-font-cond);
+  color: var(--ak-text-primary);
+  margin: 0;
+  padding-right: 40px;
+}
+.ak-dialog__close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+}
+.ak-dialog__body {
+  padding: 24px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--ak-space-3);
+}
+.ak-dialog__body p {
+  margin: 0;
+  color: var(--ak-text-secondary);
+}
+.ak-dialog__list {
+  margin: 0;
+  padding: 8px 16px 8px 32px;
+  background: var(--ak-danger-bg);
+  border: 1px solid var(--ak-danger-border);
+  border-radius: var(--ak-radius-md);
+  font: 400 var(--ak-fs-13) / 1.5 var(--ak-font-sans);
+  color: var(--ak-text-secondary);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.ak-dialog__confirm-label {
+  font: 400 var(--ak-fs-13) / 1.5 var(--ak-font-sans);
+  color: var(--ak-text-secondary);
+}
+.ak-dialog__confirm-label code {
+  font: 400 var(--ak-fs-13) / 1.5 var(--ak-font-mono);
+  color: var(--ak-text-primary);
+  background: var(--ak-surface-inset);
+  padding: 1px 6px;
+  border-radius: var(--ak-radius-xs);
+}
+.ak-dialog__foot {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--ak-space-2);
+  padding: 16px 24px;
+  border-top: 1px solid var(--ak-border-subtle);
+}
+
+/* ── TOAST ─────────────────────────────────────────────────────────────── */
+.ak-toasts {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 950;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.ak-toast {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--ak-surface-raised);
+  border: 1px solid var(--ak-border-strong);
+  border-radius: var(--ak-radius-lg);
+  box-shadow: var(--ak-shadow-lg);
+  padding: 12px 12px 12px 16px;
+  min-width: 280px;
+  max-width: 420px;
+  font: 400 var(--ak-fs-13) / 1.5 var(--ak-font-sans);
+  color: var(--ak-text-body);
+}
+.ak-toast__icon {
+  display: flex;
+  color: var(--ak-success);
+}
+.ak-toast--danger .ak-toast__icon {
+  color: var(--ak-danger);
+}
+.ak-toast__msg {
+  flex: 1;
+}
+@media (max-width: 720px) {
+  .ak-toasts {
+    left: 16px;
+    right: 16px;
+    bottom: calc(72px + env(safe-area-inset-bottom));
+  }
+  .ak-toast {
+    min-width: 0;
+    max-width: none;
+  }
+}
+
+/* ── POPOVER (search results, the bell) ────────────────────────────────── */
+.ak-pop {
+  position: relative;
+}
+.ak-pop__panel {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 8px);
+  z-index: 70;
+  width: 360px;
+  max-width: calc(100vw - 32px);
+  background: var(--ak-surface-raised);
+  border: 1px solid var(--ak-border-strong);
+  border-radius: var(--ak-radius-lg);
+  box-shadow: var(--ak-shadow-lg);
+  padding: 8px;
+}
+.ak-pop__panel[hidden] {
+  display: none;
+}
+
+/* ── MULTI PICKER (genres, cities): chips + a type-to-search box ───────── */
+.ak-picker {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--ak-space-2);
+}
+.ak-picker__chips {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.ak-picker__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 4px 2px 10px;
+  border-radius: var(--ak-radius-pill);
+  background: var(--ak-accent-quiet);
+  border: 1px solid var(--ak-info-border);
+  color: var(--ak-accent-text);
+  font: 500 var(--ak-fs-13) / 1.5 var(--ak-font-sans);
+}
+.ak-picker__chip button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border: 0;
+  border-radius: var(--ak-radius-pill);
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+.ak-picker__chip button:hover {
+  background: var(--ak-surface-hover);
+}
+.ak-picker[data-invalid='true'] .ak-input {
+  border-color: var(--ak-danger);
+}
+.ak-picker__list {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 40;
+  margin: 4px 0 0;
+  padding: 4px;
+  list-style: none;
+  max-height: 280px;
+  overflow-y: auto;
+  background: var(--ak-surface-raised);
+  border: 1px solid var(--ak-border-strong);
+  border-radius: var(--ak-radius-md);
+  box-shadow: var(--ak-shadow-md);
+}
+.ak-picker__opt {
+  padding: 8px 12px;
+  border-radius: var(--ak-radius-sm);
+  font: 400 var(--ak-fs-14) / 1.4 var(--ak-font-sans);
+  color: var(--ak-text-body);
+  cursor: pointer;
+}
+.ak-picker__opt--on,
+.ak-picker__opt:hover {
+  background: var(--ak-accent-quiet);
+  color: var(--ak-accent-text);
+}
+@media (max-width: 720px) {
+  .ak-picker__chip button {
+    width: 32px;
+    height: 32px;
+  }
+  .ak-picker__opt {
+    padding: 12px;
+  }
+}
+
+/* ── LISTS INSIDE A CARD (a line-up, flyers), INLINE FORMS, OUTCOMES ──── */
+.ak-rows {
+  margin-top: var(--ak-space-3);
+}
+.ak-rows__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ak-space-2);
+  margin-bottom: var(--ak-space-2);
+}
+.ak-rows__title {
+  font: 600 var(--ak-fs-15) / 1.3 var(--ak-font-cond);
+  color: var(--ak-text-primary);
+  margin: 0;
+}
+.ak-rows__list {
+  list-style: none;
+  margin: var(--ak-space-2) 0 0;
+  padding: 0;
+  border: 1px solid var(--ak-border-subtle);
+  border-radius: var(--ak-radius-md);
+}
+.ak-rows__item {
+  display: flex;
+  align-items: center;
+  gap: var(--ak-space-3);
+  padding: 8px 8px 8px 16px;
+  border-bottom: 1px solid var(--ak-border-subtle);
+}
+.ak-rows__item:last-child {
+  border-bottom: 0;
+}
+.ak-rows__main {
+  flex: 1;
+  min-width: 0;
+  font: 500 var(--ak-fs-14) / 1.4 var(--ak-font-sans);
+  color: var(--ak-text-primary);
+}
+.ak-rows__note {
+  font-weight: 400;
+  color: var(--ak-warning);
+}
+.ak-rows__tools {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+.ak-thumb {
+  position: relative;
+  width: 64px;
+  height: 64px;
+  flex: none;
+  border-radius: var(--ak-radius-md);
+  overflow: hidden;
+  border: 1px solid var(--ak-border);
+  background: var(--ak-surface-inset);
+}
+.ak-thumb img {
+  object-fit: cover;
+}
+.ak-inline {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--ak-space-2);
+  flex-wrap: wrap;
+  margin-top: var(--ak-space-3);
+}
+.ak-inline .ak-field {
+  flex: 1 1 220px;
+}
+.ak-select--sm {
+  height: var(--ak-control-h);
+  width: auto;
+  font-size: var(--ak-fs-13);
+}
+.ak .ak-iconbtn--danger:hover {
+  background: var(--ak-danger-bg);
+  color: var(--ak-danger);
+}
+.ak-picker__btn {
+  display: block;
+  width: 100%;
+  border: 0;
+  background: transparent;
+  text-align: left;
+}
+.ak-outcome {
+  font: 400 var(--ak-fs-13) / 1.5 var(--ak-font-sans);
+  color: var(--ak-success);
+  margin: var(--ak-space-2) 0 0;
+}
+.ak-outcome:empty {
+  margin: 0;
+}
+.ak-outcome--bad {
+  color: var(--ak-danger);
+}
+.ak-outcome--warn {
+  color: var(--ak-warning);
+  background: var(--ak-warning-bg);
+  border: 1px solid var(--ak-warning-border);
+  border-radius: var(--ak-radius-md);
+  padding: 8px 12px;
+}
+
+/* ── LINK TABS AND TEXT (Joe, 2026-10-19: "go" — preflight D1, D3) ────────
+   The kit had no tabs and no body-text classes, so screens built rows of
+   primary buttons and inline margins. Two link-tab looks:
+   · line  — which SCREEN of a section you are on (one row, an underline)
+   · pill  — a small choice inside a screen (window, breakdown, kind)
+   The chosen tab is marked with aria-current and a non-colour cue (underline
+   / filled pill), never colour alone. */
+.ak-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ak-space-1) var(--ak-space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-bottom: 1px solid var(--ak-border);
+}
+.ak-tabs__link {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--ak-control-h-lg);
+  padding: 0 var(--ak-space-1);
+  font: 500 var(--ak-fs-14) / 1.2 var(--ak-font-sans);
+  text-decoration: none;
+}
+.ak .ak-tabs__link {
+  color: var(--ak-text-secondary);
+}
+.ak .ak-tabs__link:hover {
+  color: var(--ak-text-primary);
+}
+.ak .ak-tabs__link[aria-current] {
+  color: var(--ak-text-primary);
+  font-weight: 600;
+  box-shadow: inset 0 -2px 0 var(--ak-accent);
+}
+.ak-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ak-space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.ak-pills__link {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--ak-control-h);
+  padding: 0 var(--ak-space-3);
+  border: 1px solid var(--ak-border);
+  border-radius: var(--ak-radius-pill);
+  font: 500 var(--ak-fs-13) / 1.2 var(--ak-font-sans);
+  text-decoration: none;
+  background: var(--ak-surface-card);
+}
+.ak .ak-pills__link {
+  color: var(--ak-text-primary);
+}
+.ak .ak-pills__link:hover {
+  background: var(--ak-surface-hover);
+}
+.ak .ak-pills__link[aria-current] {
+  background: var(--ak-accent-quiet);
+  border-color: var(--ak-accent);
+  color: var(--ak-accent-text);
+  font-weight: 600;
+}
+@media (pointer: coarse) {
+  .ak-pills__link {
+    min-height: 44px;
+  }
+}
+
+/* Body text, a small heading, and a plain list — for cards that say rather
+   than tabulate. Spacing comes from the scale, never from the screen. */
+.ak-text {
+  margin: 0;
+  font: 400 var(--ak-fs-14) / 1.55 var(--ak-font-sans);
+  color: var(--ak-text-primary);
+}
+.ak-text--muted {
+  color: var(--ak-text-secondary);
+}
+.ak-text + .ak-text,
+.ak-text + .ak-list,
+.ak-list + .ak-text {
+  margin-top: var(--ak-space-2);
+}
+.ak-subhead {
+  margin: 0 0 var(--ak-space-2);
+  font: 600 var(--ak-fs-15) / 1.3 var(--ak-font-cond);
+  color: var(--ak-text-primary);
+}
+.ak-list {
+  margin: 0;
+  padding-left: var(--ak-space-4);
+  font: 400 var(--ak-fs-14) / 1.55 var(--ak-font-sans);
+  color: var(--ak-text-primary);
+}
+.ak-list > li + li {
+  margin-top: var(--ak-space-1);
+}
+.ak-stack {
+  display: grid;
+  gap: var(--ak-space-3);
+}

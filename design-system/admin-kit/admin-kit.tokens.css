@@ -1,0 +1,122 @@
+/* THE ADMIN KIT'S TOKENS — D-075. Joe's App Admin design, light theme.
+ * The one admin file where colour literals belong (scripts/check-design.mjs).
+ * Rules that use them: ./admin-kit.css. */
+.ak {
+  /* ── Palette (light) ── */
+  --ak-n-0: #f6f7f6;
+  /* One white for the admin: six roles below pointed at it as six typed copies
+     (Joe approved the de-duplication, 2026-10-30). */
+  --ak-white: #ffffff;
+  --ak-n-500: #5d676f;
+  --ak-n-600: #3a4248;
+  --ak-n-900: #15191c;
+  --ak-blue-500: #2b4c7e;
+  --ak-green-500: #0f6e56;
+  --ak-indigo-500: #3f37a0;
+  --ak-amber-500: #6e4e14;
+  --ak-red-200: #e0625f;
+
+  --ak-bg-app: #f1f3f2;
+  --ak-surface-1: var(--ak-n-0);
+  --ak-surface-2: var(--ak-white);
+  --ak-surface-card: var(--ak-white);
+  --ak-surface-raised: var(--ak-white);
+  --ak-surface-hover: #edf0ef;
+  --ak-surface-active: #e4e8e7;
+  --ak-surface-inset: #e9eceb;
+
+  --ak-text-primary: var(--ak-n-900);
+  --ak-text-body: #232a2e;
+  --ak-text-secondary: var(--ak-n-500);
+  /* The design's muted (#6C767D) measured 4.32:1 on the sidebar's #F6F7F6 —
+     under AA's 4.5 (axe, 2026-10-16). Its own neutral 500 measures 5.6:1. */
+  --ak-text-muted: var(--ak-n-500);
+  --ak-text-inverse: var(--ak-n-0);
+  --ak-text-link: var(--ak-accent);
+  --ak-text-link-hover: var(--ak-accent-hover);
+
+  --ak-border: #d3d9d8;
+  --ak-border-subtle: #e4e8e7;
+  /* Fields: the design's #B4BCBC gives 1.8:1 against white, under the 3:1 a
+     field's edge needs (WCAG 1.4.11). Joe: "every form field has to have
+     borders" — so the border must be seen. Darkened to the design's own
+     neutral 400 (#737E85), 4.6:1. */
+  --ak-border-strong: #b4bcbc;
+  --ak-border-field: #737e85;
+
+  --ak-accent: #2b6cb0;
+  --ak-accent-hover: #1d4e80;
+  --ak-accent-quiet: rgba(43, 108, 176, 0.1);
+  --ak-accent-on: var(--ak-white);
+  /* Blue words on a blue tint (the current menu item, chips, info pills): the
+     design's #2B6CB0 measured 4.42:1 there; its hover blue passes easily. */
+  --ak-accent-text: var(--ak-accent-hover);
+
+  /* F8 (Joe: "yes", 2026-10-28): the design's #0F7A5F measured 4.16:1 on its own
+     tint where a badge or alert sits on the grey page (AA needs 4.5:1; axe, in
+     Storybook). One step darker passes everywhere it is used — text only:
+     4.75:1 on that tint, 5.28 on a white card's tint, 5.42 on the bare page.
+     The tint and border keep the design's green. */
+  --ak-success: #0d7058;
+  --ak-success-bg: rgba(15, 122, 95, 0.1);
+  --ak-success-border: rgba(15, 122, 95, 0.28);
+  --ak-warning: #8a5a0b;
+  --ak-warning-bg: rgba(138, 90, 11, 0.1);
+  --ak-warning-border: rgba(138, 90, 11, 0.26);
+  --ak-danger: #b02b28;
+  --ak-danger-bg: rgba(176, 43, 40, 0.09);
+  --ak-danger-border: rgba(176, 43, 40, 0.26);
+  --ak-info: var(--ak-accent);
+  --ak-info-bg: rgba(43, 108, 176, 0.09);
+  --ak-info-border: rgba(43, 108, 176, 0.26);
+  --ak-neutral-bg: rgba(93, 103, 111, 0.09);
+  --ak-neutral-border: rgba(93, 103, 111, 0.2);
+  --ak-control-track: #c3cac9;
+  --ak-control-knob: var(--ak-white);
+
+  /* ── Type ── */
+  --ak-font-sans: var(--font-plex-sans), system-ui, -apple-system, sans-serif;
+  --ak-font-cond: var(--font-plex-cond), var(--font-plex-sans), system-ui, sans-serif;
+  --ak-font-mono: var(--font-plex-mono), ui-monospace, 'SFMono-Regular', monospace;
+  --ak-fs-small: var(--ak-fs-13); /* the floor: the design's 9, 10, 11 and 12 */
+  --ak-fs-13: 13px;
+  --ak-fs-14: 14px;
+  --ak-fs-15: 15px;
+  --ak-fs-16: 16px;
+  --ak-fs-18: 18px;
+  --ak-fs-21: 21px;
+  --ak-fs-24: 24px;
+  --ak-fs-30: 30px;
+
+  /* ── Space and shape ── */
+  --ak-space-1: 4px;
+  --ak-space-2: 8px;
+  --ak-space-3: 16px;
+  --ak-space-4: 24px;
+  --ak-space-5: 32px;
+  --ak-pad-card: 24px;
+  --ak-sidebar-w: 248px;
+  --ak-sidebar-w-collapsed: 64px;
+  --ak-topbar-h: 56px;
+  --ak-control-h-sm: 28px;
+  --ak-control-h: 32px;
+  --ak-control-h-lg: 40px;
+  --ak-radius-xs: 2px;
+  --ak-spinner-stroke: 2px;
+  --ak-radius-sm: 4px;
+  --ak-radius-md: 6px;
+  --ak-radius-lg: 8px;
+  --ak-radius-pill: 999px;
+
+  --ak-shadow-md: 0 2px 8px rgba(21, 25, 28, 0.09);
+  --ak-shadow-lg: 0 8px 24px rgba(21, 25, 28, 0.12);
+  --ak-shadow-overlay: 0 16px 48px rgba(21, 25, 28, 0.18);
+  --ak-scrim: rgba(21, 25, 28, 0.38);
+  /* The shadow at a scroll area's edge when there is more (the menu). */
+  --ak-edge-shadow: rgba(21, 25, 28, 0.14);
+  --ak-dur-fast: 140ms;
+  --ak-ease: cubic-bezier(0.2, 0, 0.2, 1);
+
+  --ak-danger-hover: #8f2220;
+  --ak-on-danger: var(--ak-white);
+}
